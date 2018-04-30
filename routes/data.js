@@ -26,7 +26,11 @@ router.post('/create', checkLogin, function (req, res, next) {
   const name = req.fields.name
   const length = req.fields.length
   const result = req.fields.result
-  const date = req.fields.date
+
+  const year = req.fields.year
+  const month = req.fields.month
+  const day = req.fields.day
+
   const hour = req.fields.hour
   const min = req.fields.min
 
@@ -36,7 +40,9 @@ router.post('/create', checkLogin, function (req, res, next) {
     name: name,
     length: length,
     result: result,
-    date: date,
+    year: year,
+    month: month,
+    day: day,
     hour: hour,
     min: min
   }
@@ -76,10 +82,12 @@ router.post('/remove', checkLogin, function (req, res, next) {
 
 // get event by date
 router.post('/getEventsByDate', checkLogin, function (req, res, next) {
-  const date = req.fields.date
+  const year = req.fields.year
+  const month = req.fields.month
+  const day = req.fields.day
   const author = req.session.user._id
 
-  EventModel.getEventsByDate(author, date)
+  EventModel.getEventsByDate(author, year, month, day)
     .then(function (events) {
       res.send(events);
     })

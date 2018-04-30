@@ -48,12 +48,14 @@ module.exports = {
       .exec()
   },
 
-  getEventsByDate: function getEventsByDate (author, date) {
+  getEventsByDate: function getEventsByDate (author, year, month, day) {
     const query = {}
     query.author = author
-    query.date = date
+    query.year = year
+    query.month = month
+    query.day = day
     return Event
-      .find({"date" : {$gte:new Date(1998,1,1), $lte:new Date(1999,0,2,23)}})
+      .find(query)
       .populate({ path: 'author', model: 'User' })
       .sort({ _id: -1 })
       .exec()
