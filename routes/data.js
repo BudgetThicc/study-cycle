@@ -9,7 +9,7 @@ const EventModel = require('../models/events')
 // GET /posts 所有用户或者特定用户的文章页
 //   eg: GET /posts?author=xxx
 router.get('/', function (req, res, next) {
-  // res.send('2333')
+
   const author = req.query.author
 
   EventModel.getEvents(author)
@@ -24,19 +24,6 @@ router.post('/create', checkLogin, function (req, res, next) {
   const name = req.fields.name
   const length = req.fields.length
   const result = 'success'
-
-
-  try {
-    if (!title.length) {
-      throw new Error('请填写标题')
-    }
-    if (!content.length) {
-      throw new Error('请填写内容')
-    }
-  } catch (e) {
-    req.flash('error', e.message)
-    return res.redirect('back')
-  }
 
   let event = {
     author: author,
@@ -55,6 +42,30 @@ router.post('/create', checkLogin, function (req, res, next) {
     })
     .catch(next)
 })
+
+// GET /posts/:postId/remove 删除一篇文章
+router.get('/:eventId/remove', checkLogin, function (req, res, next) {
+  const eventId = req.params.eventId
+  const author = req.session.user._id
+
+  EventModel.getRawEventById(eventId)
+    .then(function (event) {
+      if (!event) {
+        throw new Error('文章不存在')
+      }
+      if (event.author._id.toString() !== author.toString()) {
+        throw new Error('没有权限')
+      }
+      EventModel.delEventById(eventId)
+        .then(function () {
+          req.flash('success', '删除文章成功')
+          // 删除成功后跳转到主页
+          res.send({status: 'success'})
+        })
+        .catch(next)
+    })
+})
+
 module.exports = router
 
 

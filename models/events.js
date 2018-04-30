@@ -12,8 +12,6 @@ module.exports = {
     return Event
       .findOne({ _id: eventId })
       .populate({ path: 'author', model: 'User' })
-      .addCreatedAt()
-      .contentToHtml()
       .exec()
   },
 
@@ -27,7 +25,6 @@ module.exports = {
       .find(query)
       .populate({ path: 'author', model: 'User' })
       .sort({ _id: -1 })
-      .addCreatedAt()
       .exec()
   },
 
@@ -48,6 +45,17 @@ module.exports = {
   // 通过文章 id 删除一篇文章
   delEventById: function delEventById (eventId) {
     return Event.deleteOne({ _id: eventId })
+      .exec()
+  },
+
+  getEventByDate: function getEventByDate (date) {
+    const query = {}
+    query.author = author
+    query.date = date
+    return Event
+      .find(query)
+      .populate({ path: 'author', model: 'User' })
+      .sort({ _id: -1 })
       .exec()
   }
 }
