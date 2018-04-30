@@ -9,7 +9,7 @@ const EventModel = require('../models/events')
 // GET /posts 所有用户或者特定用户的文章页
 //   eg: GET /posts?author=xxx
 router.get('/', function (req, res, next) {
-
+  // const author = req.session.user._id
   const author = req.query.author
 
   EventModel.getEvents(author)
@@ -21,15 +21,24 @@ router.get('/', function (req, res, next) {
 
 router.post('/create', checkLogin, function (req, res, next) {
   const author = req.session.user._id
+
+
   const name = req.fields.name
   const length = req.fields.length
-  const result = 'success'
+  const result = req.fields.result
+  const date = req.fields.date
+  const hour = req.fields.hour
+  const min = req.fields.min
+
 
   let event = {
     author: author,
     name: name,
     length: length,
-    result: result
+    result: result,
+    date: date,
+    hour: hour,
+    min: min
   }
 
   EventModel.create(event)
@@ -38,23 +47,20 @@ router.post('/create', checkLogin, function (req, res, next) {
       post = result.ops[0]
       // req.flash('success', '发表成功')
       // 发表成功后跳转到该文章页
-      res.send(event)
+      res.send({status: 'success'})
     })
     .catch(next)
 })
 
 // GET /posts/:postId/remove 删除一篇文章
-router.get('/:eventId/remove', checkLogin, function (req, res, next) {
-  const eventId = req.params.eventId
+router.post('/remove', checkLogin, function (req, res, next) {
+  const eventId = req.fields.id
   const author = req.session.user._id
 
   EventModel.getRawEventById(eventId)
     .then(function (event) {
       if (!event) {
         throw new Error('文章不存在')
-      }
-      if (event.author._id.toString() !== author.toString()) {
-        throw new Error('没有权限')
       }
       EventModel.delEventById(eventId)
         .then(function () {
@@ -63,6 +69,19 @@ router.get('/:eventId/remove', checkLogin, function (req, res, next) {
           res.send({status: 'success'})
         })
         .catch(next)
+    })
+})
+
+
+
+// get event by date
+router.post('/getEventsByDate', checkLogin, function (req, res, next) {
+  const date = req.fields.date
+  const author = req.session.user._id
+
+  EventModel.getEventsByDate(author, date)
+    .then(function (events) {
+      res.send(events);
     })
 })
 
